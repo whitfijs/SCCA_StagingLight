@@ -1,1 +1,1 @@
-main.d main.o: ../main.cpp
+main.d: ../main.cpp

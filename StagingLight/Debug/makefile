@@ -47,6 +47,12 @@ endif
 LSS += \
 StagingLight.lss \
 
+FLASH_IMAGE += \
+StagingLight.hex \
+
+EEPROM_IMAGE += \
+StagingLight.eep \
+
 SIZEDUMMY += \
 sizedummy \
 
@@ -69,6 +75,18 @@ StagingLight.lss: StagingLight.elf
 	@echo 'Finished building: $@'
 	@echo ' '
 
+StagingLight.hex: StagingLight.elf
+	@echo 'Create Flash image (ihex format)'
+	-avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex StagingLight.elf  "StagingLight.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+StagingLight.eep: StagingLight.elf
+	@echo 'Create eeprom image (ihex format)'
+	-avr-objcopy -j .eeprom --no-change-warnings --change-section-lma .eeprom=0 -O ihex StagingLight.elf  "StagingLight.eep"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 sizedummy: StagingLight.elf
 	@echo 'Invoking: Print Size'
 	-avr-size --format=avr --mcu=atmega328 StagingLight.elf
@@ -77,14 +95,14 @@ sizedummy: StagingLight.elf
 
 # Other Targets
 clean:
-	-$(RM) $(C_UPPER_DEPS)$(S_DEPS)$(LSS)$(C_DEPS)$(CC_DEPS)$(ELFS)$(C++_DEPS)$(OBJS)$(CXX_DEPS)$(ASM_DEPS)$(SIZEDUMMY)$(S_UPPER_DEPS)$(CPP_DEPS) StagingLight.elf
+	-$(RM) $(C_UPPER_DEPS)$(S_DEPS)$(LSS)$(C_DEPS)$(FLASH_IMAGE)$(CC_DEPS)$(ELFS)$(C++_DEPS)$(OBJS)$(CXX_DEPS)$(ASM_DEPS)$(EEPROM_IMAGE)$(SIZEDUMMY)$(S_UPPER_DEPS)$(CPP_DEPS) StagingLight.elf
 	-@echo ' '
 
 post-build:
 	-avr-objcopy -R .eeprom -O ihex StagingLight.elf "StagingLight.ihex"
 	-@echo ' '
 
-secondary-outputs: $(LSS) $(SIZEDUMMY)
+secondary-outputs: $(LSS) $(FLASH_IMAGE) $(EEPROM_IMAGE) $(SIZEDUMMY)
 
 .PHONY: all clean dependents
 .SECONDARY: post-build

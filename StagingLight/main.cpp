@@ -20,10 +20,16 @@
 #define EXTERNAL_INT_1 1
 #define EXTERNAL_INT_2 2
 
-#define LED_PORT 	PORTB
-#define LED_INPUT	PINB
-#define LED_DDR		DDRB
-#define LED_PIN		PB5
+#define LED_PORT 	PORTC
+#define LED_INPUT	PINC
+#define LED_DDR		DDRC
+#define LED_PIN		PC5
+
+/*Pin attached as drain, LOW = LED On, HIGH = LED off*/
+#define DEBUG_LED_PORT 		PORTC
+#define DEBUG_LED_INPUT		PINC
+#define DEBUG_LED_DDR		DDRC
+#define DEBUG_LED_PIN		PC2
 
 #define CHANGE 1
 #define FALLING 2
@@ -61,10 +67,18 @@ int main(void){
 
 
 void init(){
+	/*PD2 as input for garage door sensor*/
 	DDRD &= ~_BV(PIND2);//PD2 as input
 	//PORTD |= _BV(PIND2);//Pull up enabled
+
+	/*Set LED Pin as output*/
 	LED_DDR |= _BV(LED_PIN);//Output for light
 
+	/*Set DEBUG LED as output and HIGH to turn LED off*/
+	DEBUG_LED_DDR |= _BV(DEBUG_LED_PIN);
+	DEBUG_LED_PORT |= _BV(DEBUG_LED_PIN);
+
+	/*Pulse LED on startup*/
 	for(int i=0;i<10;i++){
 		if(!(LED_INPUT & _BV(LED_PIN))){/*If the LED is off*/
 			/*Turn on the staging light*/
